@@ -1,0 +1,29 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 2020
+    },
+    "rules": {
+        "no-console": "off",
+        "no-underscore-dangle":  ["error", { "allow": [
+            "_service",
+            "_validator",
+            "_pool",
+            "_usersService",
+            "_authenticationsService",
+            "_tokenManager",
+            "_collaborationService",
+            "_collaborationsService",
+            "_playlistSongsService",
+            "_songsService",
+            "_userService",
+            "_playlistSongActivitiesService"
+        ] }]
+    }
+}
