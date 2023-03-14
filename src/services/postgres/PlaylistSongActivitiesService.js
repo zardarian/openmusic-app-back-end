@@ -41,7 +41,8 @@ class PlaylistSongsActivitiesService {
       FROM playlist_song_activities psa
       left join users u on u.id = psa.user_id
       left join songs s on s.id = psa.song_id
-      WHERE psa.playlist_id = $1`,
+      WHERE psa.playlist_id = $1
+      ORDER BY psa.time asc`,
       values: [playlistId],
     };
     const result = await this._pool.query(query);

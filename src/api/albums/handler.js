@@ -1,8 +1,9 @@
 const ClientError = require('../../exceptions/ClientError');
 
 class AlbumsHandler {
-  constructor(service, validator) {
-    this._service = service;
+  constructor(albumsService, storageService, validator) {
+    this._service = albumsService;
+    this._storageService = storageService;
     this._validator = validator;
 
     this.postHandler = this.postHandler.bind(this);
@@ -10,6 +11,7 @@ class AlbumsHandler {
     this.getByIdHandler = this.getByIdHandler.bind(this);
     this.putByIdHandler = this.putByIdHandler.bind(this);
     this.deleteByIdHandler = this.deleteByIdHandler.bind(this);
+    this.addCoverByIdHandler = this.addCoverByIdHandler.bind(this);
   }
 
   async postHandler(request, h) {
@@ -62,6 +64,11 @@ class AlbumsHandler {
     try {
       const { id } = request.params;
       const album = await this._service.getById(id);
+
+      if (album.coverUrl != null) {
+        album.coverUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${album.coverUrl}`;
+      }
+
       return {
         status: 'success',
         data: {
@@ -130,6 +137,42 @@ class AlbumsHandler {
         message: 'Album berhasil dihapus',
       };
     } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(error.statusCode);
+        return response;
+      }
+
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(error);
+      return response;
+    }
+  }
+
+  async addCoverByIdHandler(request, h) {
+    try {
+      const { cover } = request.payload;
+      const { id } = request.params;
+      this._validator.validateAlbumCoverHeader(cover.hapi.headers);
+
+      const filename = await this._storageService.writeFile(cover, cover.hapi);
+      await this._service.addCoverById(id, filename);
+
+      const response = h.response({
+        status: 'success',
+        message: 'Sampul berhasil diunggah',
+      });
+      response.code(201);
+      return response;
+    } catch (error) {
+      console.log(error);
       if (error instanceof ClientError) {
         const response = h.response({
           status: 'fail',

@@ -23,7 +23,10 @@
             "_playlistSongsService",
             "_songsService",
             "_userService",
-            "_playlistSongActivitiesService"
+            "_playlistSongActivitiesService",
+            "_exports",
+            "_folder",
+            "_storageService"
         ] }]
     }
 }

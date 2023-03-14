@@ -14,10 +14,12 @@ const indexById = ({
   id,
   name,
   year,
+  cover,
 }) => ({
   id,
   name,
-  year,
+  year: parseInt(year, 10),
+  coverUrl: cover,
 });
 
 const songIndex = ({
