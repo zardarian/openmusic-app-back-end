@@ -26,7 +26,10 @@
             "_playlistSongActivitiesService",
             "_exports",
             "_folder",
-            "_storageService"
+            "_storageService",
+            "_userAlbumLikesService",
+            "_client",
+            "_cacheService"
         ] }]
     }
 }

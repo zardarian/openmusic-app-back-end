@@ -1,17 +1,11 @@
 const config = require('../../utils/config');
 
 class AlbumsHandler {
-  constructor(albumsService, storageService, validator) {
+  constructor(albumsService, storageService, userAlbumLikesService, validator) {
     this._service = albumsService;
     this._storageService = storageService;
+    this._userAlbumLikesService = userAlbumLikesService;
     this._validator = validator;
-
-    // this.postHandler = this.postHandler.bind(this);
-    // this.getHandler = this.getHandler.bind(this);
-    // this.getByIdHandler = this.getByIdHandler.bind(this);
-    // this.putByIdHandler = this.putByIdHandler.bind(this);
-    // this.deleteByIdHandler = this.deleteByIdHandler.bind(this);
-    // this.addCoverByIdHandler = this.addCoverByIdHandler.bind(this);
   }
 
   async postHandler(request, h) {
@@ -99,6 +93,42 @@ class AlbumsHandler {
       message: 'Sampul berhasil diunggah',
     });
     response.code(201);
+    return response;
+  }
+
+  async likesAlbum(request, h) {
+    const { id: albumId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this._service.getById(albumId);
+    const isLiked = await this._userAlbumLikesService.getIsLiked(userId, albumId);
+
+    if (isLiked === false) {
+      await this._userAlbumLikesService.like(userId, albumId);
+    } else {
+      await this._userAlbumLikesService.unlike(userId, albumId);
+    }
+
+    const response = h.response({
+      status: 'success',
+      message: 'Sampul berhasil diunggah',
+    });
+    response.code(201);
+    return response;
+  }
+
+  async countLikesAlbum(request, h) {
+    const { id: albumId } = request.params;
+
+    const countLikes = await this._userAlbumLikesService.getCount(albumId);
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        likes: parseInt(countLikes.value, 10),
+      },
+    }).header('X-Data-Source', countLikes.source);
+    response.code(200);
     return response;
   }
 }

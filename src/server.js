@@ -37,15 +37,20 @@ const PlaylistSongsValidator = require('./validator/playlistsongs');
 // playlist activities
 const playlistSongActivities = require('./api/playlistsongactivities');
 const PlaylistSongActivitiesService = require('./services/postgres/PlaylistSongActivitiesService');
+// user album likes
+const UserAlbumLikesService = require('./services/postgres/UserAlbumLikesService');
 // Exports
 const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 const ExportsValidator = require('./validator/exports');
 // Storage
 const StorageService = require('./services/storage/StorageService');
+// Cache
+const CacheService = require('./services/redis/CacheService');
 
 const init = async () => {
   const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
+  const cacheService = new CacheService();
   const songsService = new SongsService();
   const usersService = new UsersService();
   const albumsService = new AlbumsService();
@@ -54,6 +59,7 @@ const init = async () => {
   const playlistSongActivitiesService = new PlaylistSongActivitiesService(collaborationsService);
   const playlistSongsService = new PlaylistSongsService(collaborationsService, songsService, playlistSongActivitiesService);
   const authenticationsService = new AuthenticationsService();
+  const userAlbumLikesService = new UserAlbumLikesService(cacheService);
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -127,6 +133,7 @@ const init = async () => {
       options: {
         albumsService,
         storageService,
+        userAlbumLikesService,
         validator: AlbumsValidator,
       },
     },
