@@ -30,6 +30,7 @@ const routes = (handler) => [
     handler: (request, h) => handler.addCoverByIdHandler(request, h),
     options: {
       payload: {
+        maxBytes: 512000,
         allow: 'multipart/form-data',
         multipart: true,
         output: 'stream',
